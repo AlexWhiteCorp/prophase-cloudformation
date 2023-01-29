@@ -8,6 +8,9 @@ on:
   workflow_dispatch:
   pull_request:
 
+env:
+  env-name: dev
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -16,10 +19,6 @@ jobs:
         if: ( github.ref == 'main' )
         run: |
           echo "env-name=prod" >> $GITHUB_ENV
-      - name: Sen dev env
-        if: ( github.ref != 'main' )
-        run: |
-          echo "env-name=dev" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v2

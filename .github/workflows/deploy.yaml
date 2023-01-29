@@ -15,7 +15,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Sen prod env
+      - name: Set prod env
         if: ( github.ref == 'main' )
         run: |
           echo "env-name=prod" >> $GITHUB_ENV

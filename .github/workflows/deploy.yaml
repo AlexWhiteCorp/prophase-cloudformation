@@ -1,4 +1,4 @@
-name: 'Deploy to AWS CloudFormation'
+name: 'Deploy AWS CloudFormation'
 
 on:
   push:
@@ -28,12 +28,12 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_SECRET }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Deploy AWS CloudFormation
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-          name: ${{ env.env-name }}-${{ env.SERVICE_NAME }}
+          name: ${{ env.env-name }}-${{ vars.SERVICE_NAME }}
           template: prophase-bot.yaml
           no-fail-on-empty-changeset: "1"
-          parameter-overrides: BotServiceName=${{ env.SERVICE_NAME }}
+          parameter-overrides: BotServiceName=${{ vars.SERVICE_NAME }}

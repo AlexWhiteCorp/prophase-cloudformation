@@ -6,6 +6,7 @@ on:
       - develop
       - main
   workflow_dispatch:
+  pull_request:
 
 jobs:
   deploy:
@@ -13,14 +14,12 @@ jobs:
     steps:
       - name: Sen prod env
         if: ( github.ref == 'main' )
-        id: values
         run: |
-              echo "::set-output name=env::prod"
+          echo "env-name=prod" >> $GITHUB_ENV
       - name: Sen dev env
         if: ( github.ref != 'main' )
-        id: values
         run: |
-          echo "::set-output name=env::dev"
+          echo "env-name=dev" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -35,7 +34,7 @@ jobs:
       - name: Deploy AWS CloudFormation
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-          name: ${{ steps.values.outputs.env }}-${{ env.SERVICE_NAME }}
+          name: ${{ env.env-name }}-${{ env.SERVICE_NAME }}
           template: prophase-bot.yaml
           no-fail-on-empty-changeset: "1"
           parameter-overrides: BotServiceName=${{ env.SERVICE_NAME }}

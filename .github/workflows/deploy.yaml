@@ -30,6 +30,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_SECRET }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Deploy AWS CloudFormation
-        run: |
-          aws cloudformation deploy --template-file infrastructure.yaml --stack-name dev-prophase-bot
+      - name: Deploy to S3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --delete
+        env:
+          AWS_S3_BUCKET: ${{ vars.AWS_TEMPLATES_BUCKET_NAME }}
+          SOURCE_DIR: "./"

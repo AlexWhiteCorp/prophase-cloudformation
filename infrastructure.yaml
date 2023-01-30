@@ -1,0 +1,18 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: Prophase infrastructure stack
+
+Parameters:
+  BotServiceName:
+    Description: Name of bot impl service
+    Type: String
+
+Resources:
+  ProphaseBotServiceStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: 'services/prophase-bot.yaml'
+      Parameters:
+        ServiceName: 'prophase-bot'
+
+Outputs: {}

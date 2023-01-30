@@ -1,17 +1,17 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
-Description: Prophase Bot infrastructure stack
+Description: Prophase Bot Service stack
 
 Parameters:
-  BotServiceName:
-    Description: Name of bot impl service
+  ServiceName:
+    Description: Name of the service
     Type: String
 
 Resources:
-  ProphaseBotRepository:
+  ServiceRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: !Sub ${BotServiceName}
+      RepositoryName: !Sub ${ServiceName}
       RepositoryPolicyText:
         Version: "2012-10-17"
         Statement:
@@ -22,5 +22,3 @@ Resources:
                 - "arn:aws:iam::149284612295:user/GitHub_Actions"
             Action:
               - "ecr:*"
-
-Outputs: {}

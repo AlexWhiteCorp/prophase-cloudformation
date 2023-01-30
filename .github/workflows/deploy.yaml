@@ -32,8 +32,8 @@ jobs:
 
       - name: Deploy to S3
         uses: shallwefootball/s3-upload-action@master
-        env:
+        with:
           aws_key_id: ${{ secrets.AWS_ACCESS_KEY }}
           aws_secret_access_key: ${{ secrets.AWS_ACCESS_SECRET }}
           aws_bucket: ${{ vars.AWS_TEMPLATES_BUCKET_NAME }}
-          SOURCE_DIR: "templates"
+          source_dir: "templates"

@@ -144,10 +144,10 @@ Resources:
 #####################################
 
 # prophase-bot service
-  ServiceRepository:
+  BotServiceRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: !Sub ${BotServiceName}
+      RepositoryName: !Sub ${BotServiceName}-service
       RepositoryPolicyText:
         Version: "2012-10-17"
         Statement:

@@ -195,17 +195,18 @@ Resources:
           PortMappings:
             - ContainerPort: 8126
               Protocol: tcp
-      Environment:
-        - Name: DD_SITE
-          Value: 'us5.datadoghq.com'
-        - Name: DD_API_KEY
-          Value: 'api-key'
-      LogConfiguration:
-        LogDriver: awslogs
-        Options:
-          awslogs-group: 'dd-agent'
-          awslogs-region: eu-west-1
-          awslogs-stream-prefix: !Sub ${Env}
+          Environment:
+            - Name: DD_SITE
+              Value: 'us5.datadoghq.com'
+            - Name: DD_API_KEY
+              Value: 'api-key'
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-create-group: true
+              awslogs-group: 'dd-agent'
+              awslogs-region: eu-west-1
+              awslogs-stream-prefix: !Sub ${Env}
 
   DDAgentServiceECS:
     Type: AWS::ECS::Service

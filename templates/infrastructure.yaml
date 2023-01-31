@@ -144,7 +144,7 @@ Resources:
 #####################################
 
 # prophase-bot service
-  BotServiceRepository:
+  ServiceRepository:
     Type: AWS::ECR::Repository
     Properties:
       RepositoryName: !Sub ${BotServiceName}
@@ -170,7 +170,7 @@ Resources:
       NetworkMode: "awsvpc"
       ContainerDefinitions:
         - Name: !Sub ${BotServiceName}-task
-          Image: !Sub ${BotServiceRepository.RepositoryUri}:latest
+          Image: !Sub ${ServiceRepository.RepositoryUri}:latest
           MemoryReservation: 256
           Memory: 512
           PortMappings:

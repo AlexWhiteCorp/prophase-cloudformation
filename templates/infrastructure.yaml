@@ -29,12 +29,12 @@ Resources:
 #    Properties:
 #      RestApiId: !Ref RestApi
 
-  RestApiStage:
-    Type: AWS::ApiGateway::Stage
-    Properties:
-      StageName: !Sub ${Env}
-      Description: !Sub ${Env} Stage
-      RestApiId: !Ref RestApi
+#  RestApiStage:
+#    Type: AWS::ApiGateway::Stage
+#    Properties:
+#      StageName: !Sub ${Env}
+#      Description: !Sub ${Env} Stage
+#      RestApiId: !Ref RestApi
 #      DeploymentId: !Ref RestApiDeployment
 
   RestApiRootResource:

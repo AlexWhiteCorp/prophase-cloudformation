@@ -169,7 +169,7 @@ Resources:
       Memory: 512
       NetworkMode: "awsvpc"
       ContainerDefinitions:
-        - Name: "myawsplanet"
+        - Name: !Sub ${BotServiceName}-task
           Image: !GetAtt ServiceRepository.RepositoryUri:latest
           MemoryReservation: 256
           Memory: 512

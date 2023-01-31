@@ -200,6 +200,12 @@ Resources:
           Value: 'us5.datadoghq.com'
         - Name: DD_API_KEY
           Value: 'api-key'
+      LogConfiguration:
+        LogDriver:
+        Options:
+          awslogs-group: 'dd-agent'
+          awslogs-region: eu-west-1
+          awslogs-stream-prefix: !Sub ${Env}
 
   DDAgentServiceECS:
     Type: AWS::ECS::Service

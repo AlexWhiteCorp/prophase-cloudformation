@@ -196,7 +196,7 @@ Resources:
             - ContainerPort: 8126
               Protocol: tcp
 
-  DDAgentECSService:
+  DDAgentServiceECS:
     Type: AWS::ECS::Service
     Properties:
       LaunchType: FARGATE

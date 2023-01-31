@@ -190,8 +190,13 @@ Resources:
       ContainerDefinitions:
         - Name: dd-agent-service-task
           Image: public.ecr.aws/datadog/agent:latest
-          MemoryReservation: 256
+          MemoryReservation: 512
           Memory: 512
+          Essential: true
+          MountPoints:
+            - ContainerPath: "\\\\.\\pipe\\docker_engine"
+              SourceVolume: "docker_sock"
+              ReadOnly: null
           PortMappings:
             - ContainerPort: 8126
               Protocol: tcp
@@ -207,6 +212,17 @@ Resources:
               awslogs-group: 'dd-agent'
               awslogs-region: eu-west-1
               awslogs-stream-prefix: !Sub ${Env}
+      Volumes:
+        - Host:
+            SourcePath: "\\\\.\\pipe\\docker_engine"
+          Name: "docker_sock"
+      Family: datadog-agent-task
+      HealthCheck:
+        Retries: 3
+        Command: ["CMD-SHELL","agent health"]
+        Timeout: 5
+        Interval: 30
+        StartPeriod: 15
 
   DDAgentServiceECS:
     Type: AWS::ECS::Service

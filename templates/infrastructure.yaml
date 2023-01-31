@@ -83,7 +83,7 @@ Resources:
   AppLoadBalancer:
     Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
     Properties:
-      Name: ${Env}-ApplicationLoadBalancer
+      Name: !Sub ${Env}-ApplicationLoadBalancer
       Subnets:
         - subnet-08e523a5d8cfc4bad
         - subnet-04a6f0c79e66d298b

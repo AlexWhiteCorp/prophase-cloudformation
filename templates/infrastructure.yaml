@@ -50,10 +50,10 @@ Resources:
     Properties:
       AuthorizationType: NONE
       HttpMethod: POST
-      Integration:
-        ConnectionType: INTERNET
-        IntegrationHttpMethod: POST
-        Type: AWS_PROXY
+#      Integration:
+#        ConnectionType: INTERNET
+#        IntegrationHttpMethod: POST
+#        Type: AWS_PROXY
       ResourceId: !Ref RestApiRootResource
       RestApiId: !Ref RestApi
 

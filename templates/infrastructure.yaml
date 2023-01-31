@@ -220,7 +220,7 @@ Resources:
       LoadBalancers:
         - TargetGroupArn:
             Ref: FargateTargetGroup
-          ContainerPort: 8081
+          ContainerPort: 8126
           ContainerName: dd-agent-service-task
 
 Outputs: {}

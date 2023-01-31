@@ -39,7 +39,7 @@ Resources:
   RestApiRootResource:
     Type: AWS::ApiGateway::Resource
     Properties:
-      ParentId: !GetAtt RestApiResource.RootResourceId
+      ParentId: !GetAtt RestApi.RootResourceId
 #      PathPart: !Sub "${Prefix}-resource"
       RestApiId: !Ref RestApi
 

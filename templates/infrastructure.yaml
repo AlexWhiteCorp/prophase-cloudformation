@@ -22,12 +22,12 @@ Resources:
           - EDGE
       Name: !Sub ${Env}-api
 
-  RestApiDeployment:
-    Type: AWS::ApiGateway::Deployment
-    DependsOn:
-      - PostBotMethod
-    Properties:
-      RestApiId: !Ref RestApi
+#  RestApiDeployment:
+#    Type: AWS::ApiGateway::Deployment
+#    DependsOn:
+#      - PostBotMethod
+#    Properties:
+#      RestApiId: !Ref RestApi
 
   RestApiStage:
     Type: AWS::ApiGateway::Stage

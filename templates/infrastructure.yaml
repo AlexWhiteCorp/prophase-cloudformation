@@ -8,11 +8,20 @@ Parameters:
     Type: String
 
 Resources:
-  ProphaseBotServiceStack:
-    Type: AWS::CloudFormation::Stack
+# prophase-bot service
+  ServiceRepository:
+    Type: AWS::ECR::Repository
     Properties:
-      TemplateURL: './services/prophase-bot.yaml'
-      Parameters:
-        ServiceName: 'prophase-bot'
+      RepositoryName: !Sub ${BotServiceName}
+      RepositoryPolicyText:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowPushPull
+            Effect: Allow
+            Principal:
+              AWS:
+                - "arn:aws:iam::149284612295:user/GitHub_Actions"
+            Action:
+              - "ecr:*"
 
 Outputs: {}

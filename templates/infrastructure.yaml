@@ -3,11 +3,64 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: Prophase infrastructure stack
 
 Parameters:
+  Env:
+    Description: Environment prefix
+    Type: String
   BotServiceName:
     Description: Name of bot impl service
     Type: String
 
 Resources:
+#####################################
+#               API                 #
+#####################################
+  RestApi:
+    Type: 'AWS::ApiGateway::RestApi'
+    Properties:
+      EndpointConfiguration:
+        Types:
+          - EDGE
+
+  RestApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - PostBotMethod
+    Properties:
+      RestApiId: !Ref RestApi
+
+  RestApiStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      StageName: !Sub ${Env}
+      Description: !Sub ${Env} Stage
+      RestApiId: !Ref RestApi
+      DeploymentId: !Ref RestApiDeployment
+
+  RestApiResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt RestApiResource.RootResourceId
+#      PathPart: !Sub "${Prefix}-resource"
+      RestApiId: !Ref RestApi
+
+# Api Methods Level 1
+  PostBotMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      Integration:
+        ConnectionType: INTERNET
+        Credentials: !GetAtt ApiGatewayRole.Arn
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+      ResourceId: !Ref Resource
+      RestApiId: !Ref RestApi
+
+
+#####################################
+#            SERVICES               #
+#####################################
 # prophase-bot service
   ServiceRepository:
     Type: AWS::ECR::Repository

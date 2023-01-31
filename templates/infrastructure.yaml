@@ -177,4 +177,23 @@ Resources:
             - ContainerPort: 8081
               Protocol: tcp
 
+# DD Agent service
+  DDAgentServiceDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      RequiresCompatibilities:
+        - "FARGATE"
+      ExecutionRoleArn: !GetAtt ECSTaskExecutionRole.Arn
+      Cpu: 256
+      Memory: 512
+      NetworkMode: "awsvpc"
+      ContainerDefinitions:
+        - Name: dd-agent-service-task
+          Image: public.ecr.aws/datadog/agent:latest
+          MemoryReservation: 256
+          Memory: 512
+          PortMappings:
+            - ContainerPort: 8126
+              Protocol: tcp
+
 Outputs: {}

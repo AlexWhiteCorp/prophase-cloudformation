@@ -20,6 +20,7 @@ Resources:
       EndpointConfiguration:
         Types:
           - EDGE
+      Name: !Sub ${Env}-api
 
   RestApiDeployment:
     Type: AWS::ApiGateway::Deployment

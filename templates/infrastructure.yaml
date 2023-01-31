@@ -201,7 +201,7 @@ Resources:
         - Name: DD_API_KEY
           Value: 'api-key'
       LogConfiguration:
-        LogDriver:
+        LogDriver: awslogs
         Options:
           awslogs-group: 'dd-agent'
           awslogs-region: eu-west-1

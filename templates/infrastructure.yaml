@@ -36,7 +36,7 @@ Resources:
       RestApiId: !Ref RestApi
       DeploymentId: !Ref RestApiDeployment
 
-  RestApiResource:
+  RestApiRootResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       ParentId: !GetAtt RestApiResource.RootResourceId
@@ -53,7 +53,7 @@ Resources:
         ConnectionType: INTERNET
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
-      ResourceId: !Ref Resource
+      ResourceId: !Ref RestApiRootResource
       RestApiId: !Ref RestApi
 
 

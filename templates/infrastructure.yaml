@@ -51,7 +51,6 @@ Resources:
       HttpMethod: POST
       Integration:
         ConnectionType: INTERNET
-        Credentials: !GetAtt ApiGatewayRole.Arn
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
       ResourceId: !Ref Resource

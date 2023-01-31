@@ -196,4 +196,31 @@ Resources:
             - ContainerPort: 8126
               Protocol: tcp
 
+  DDAgentECSService:
+    Type: AWS::ECS::Service
+    Properties:
+      LaunchType: FARGATE
+      Cluster:
+        Ref: "ECSCluster"
+      DesiredCount: 1
+      TaskDefinition:
+        Ref: DDAgentServiceDefinition
+      DeploymentConfiguration:
+        MaximumPercent: 100
+        MinimumHealthyPercent: 0
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups:
+            - !GetAtt Alb2FargateContainers.GroupId
+          Subnets:
+            - subnet-08e523a5d8cfc4bad
+            - subnet-04a6f0c79e66d298b
+            - subnet-06c9b90d113095ae2
+      LoadBalancers:
+        - TargetGroupArn:
+            Ref: FargateTargetGroup
+          ContainerPort: 8081
+          ContainerName: dd-agent-service-task
+
 Outputs: {}

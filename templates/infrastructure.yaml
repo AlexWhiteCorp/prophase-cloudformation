@@ -196,7 +196,6 @@ Resources:
           MountPoints:
             - ContainerPath: "\\\\.\\pipe\\docker_engine"
               SourceVolume: "docker_sock"
-              ReadOnly: null
           PortMappings:
             - ContainerPort: 8126
               Protocol: tcp

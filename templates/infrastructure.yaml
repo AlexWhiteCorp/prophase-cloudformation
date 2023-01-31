@@ -195,6 +195,11 @@ Resources:
           PortMappings:
             - ContainerPort: 8126
               Protocol: tcp
+      Environment:
+        - Name: DD_SITE
+          Value: 'us5.datadoghq.com'
+        - Name: DD_API_KEY
+          Value: 'api-key'
 
   DDAgentServiceECS:
     Type: AWS::ECS::Service

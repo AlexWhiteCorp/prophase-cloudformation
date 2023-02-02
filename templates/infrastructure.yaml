@@ -123,9 +123,9 @@ Resources:
     Properties:
       Name: !Sub ${Env}-ApplicationLoadBalancer
       Subnets:
-        - !Ref TestSubnet01
-        - !Ref TestSubnet02
-        - !Ref TestSubnet03
+        - !Ref Subnet01
+        - !Ref Subnet02
+        - !Ref Subnet03
       SecurityGroups:
         - !GetAtt FargateALBSG.GroupId
       Type: application

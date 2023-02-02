@@ -20,6 +20,17 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${Env}-vpc
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub ${Env} VPC Internet Gateway
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
   Subnet01:
     Type: 'AWS::EC2::Subnet'
     Properties:
@@ -111,8 +122,10 @@ Resources:
 
   AppLoadBalancer:
     Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
+    DependsOn:
+      - VPC
     Properties:
-      Name: !Sub ${Env}-ApplicationLoadBalancer
+      Name: !Sub ${Env}-cluster-ALB
       Subnets:
         - !Ref Subnet01
         - !Ref Subnet02

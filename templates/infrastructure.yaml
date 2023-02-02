@@ -20,33 +20,33 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${Env}-vpc
-    Subnet01:
-      Type: 'AWS::EC2::Subnet'
-      Properties:
-        CidrBlock: 10.0.96.0/19
-        AvailabilityZone: !Select
-          - '0'
-          - !GetAZs
-            Ref: 'AWS::Region'
-        VpcId: !Ref VPC
-    Subnet02:
-      Type: 'AWS::EC2::Subnet'
-      Properties:
-        CidrBlock: 10.0.128.0/19
-        AvailabilityZone: !Select
-          - '1'
-          - !GetAZs
-            Ref: 'AWS::Region'
-        VpcId: !Ref VPC
-    Subnet03:
-      Type: 'AWS::EC2::Subnet'
-      Properties:
-        CidrBlock: 10.0.128.0/19
-        AvailabilityZone: !Select
-          - '2'
-          - !GetAZs
-            Ref: 'AWS::Region'
-        VpcId: !Ref VPC
+  Subnet01:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      CidrBlock: 10.0.96.0/19
+      AvailabilityZone: !Select
+        - '0'
+        - !GetAZs
+          Ref: 'AWS::Region'
+      VpcId: !Ref VPC
+  Subnet02:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      CidrBlock: 10.0.128.0/19
+      AvailabilityZone: !Select
+        - '1'
+        - !GetAZs
+          Ref: 'AWS::Region'
+      VpcId: !Ref VPC
+  Subnet03:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      CidrBlock: 10.0.128.0/19
+      AvailabilityZone: !Select
+        - '2'
+        - !GetAZs
+          Ref: 'AWS::Region'
+      VpcId: !Ref VPC
 
 
 #####################################

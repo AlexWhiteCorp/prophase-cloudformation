@@ -120,21 +120,22 @@ Resources:
         - !GetAtt FargateALBSG.GroupId
       Type: application
 
-  FargateTargetGroup:
+  ClusterTargetGroup:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     Properties:
-      Name: !Sub ${Env}-ClusterTargetGroup
+      Name: !Sub ${Env}-cluster-target-group
       VpcId: !Ref VPC
       Protocol: HTTP
       Port: 8080
       HealthCheckPath: /actuator/
       TargetType: ip
 
-  FargateListener:
+  ClusterListener:
     Type: 'AWS::ElasticLoadBalancingV2::Listener'
     Properties:
+      Name: !Sub ${Env}-cluster-listener
       DefaultActions:
-        - TargetGroupArn: !Ref FargateTargetGroup
+        - TargetGroupArn: !Ref ClusterTargetGroup
           Type: forward
       LoadBalancerArn: !Ref AppLoadBalancer
       Port: 80

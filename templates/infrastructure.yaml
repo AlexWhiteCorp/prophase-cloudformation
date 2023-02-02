@@ -11,6 +11,44 @@ Parameters:
     Type: String
 
 Resources:
+  VPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${Env}-vpc
+    Subnet01:
+      Type: 'AWS::EC2::Subnet'
+      Properties:
+        CidrBlock: 10.0.96.0/19
+        AvailabilityZone: !Select
+          - '0'
+          - !GetAZs
+            Ref: 'AWS::Region'
+        VpcId: !Ref VPC
+    Subnet02:
+      Type: 'AWS::EC2::Subnet'
+      Properties:
+        CidrBlock: 10.0.128.0/19
+        AvailabilityZone: !Select
+          - '1'
+          - !GetAZs
+            Ref: 'AWS::Region'
+        VpcId: !Ref VPC
+    Subnet03:
+      Type: 'AWS::EC2::Subnet'
+      Properties:
+        CidrBlock: 10.0.128.0/19
+        AvailabilityZone: !Select
+          - '2'
+          - !GetAZs
+            Ref: 'AWS::Region'
+        VpcId: !Ref VPC
+
+
 #####################################
 #               API                 #
 #####################################
@@ -85,9 +123,9 @@ Resources:
     Properties:
       Name: !Sub ${Env}-ApplicationLoadBalancer
       Subnets:
-        - subnet-08e523a5d8cfc4bad
-        - subnet-04a6f0c79e66d298b
-        - subnet-06c9b90d113095ae2
+        - !Ref TestSubnet01
+        - !Ref TestSubnet02
+        - !Ref TestSubnet03
       SecurityGroups:
         - !GetAtt FargateALBSG.GroupId
       Type: application
@@ -96,7 +134,7 @@ Resources:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     Properties:
       Name: !Sub ${Env}-ClusterTargetGroup
-      VpcId: vpc-0a6772e112fb9c3f4
+      VpcId: !Ref VPC
       Protocol: HTTP
       Port: 8080
       HealthCheckPath: /actuator/
@@ -158,6 +196,46 @@ Resources:
                 - "arn:aws:iam::149284612295:user/GitHub_Actions"
             Action:
               - "ecr:*"
+
+  BotServiceDBSecret:
+    Type: 'AWS::SecretsManager::Secret'
+    Properties:
+      Name: !Sub ${Env}-${BotServiceName}-db
+      Description: !Sub AWS RDS admin credentials for ${BotServiceName} DB
+      GenerateSecretString:
+        SecretStringTemplate: '{"username": "postgres", "port": "5432"}'
+        GenerateStringKey: password
+        PasswordLength: 16
+        ExcludeCharacters: '"@/\#$^*()-+='
+    BotServiceDBInstance:
+      Type: 'AWS::RDS::DBInstance'
+      Properties:
+        AllocatedStorage: 20
+        DBInstanceClass: db.t2.micro
+        DBInstanceIdentifier: !Sub ${Env}-${BotServiceName}
+        Engine: postgres
+        DBSubnetGroupName: !Ref BotServiceDBSubnetGroup
+        MasterUsername: !Sub '{{resolve:secretsmanager:${BotServiceDBSecret}::username}}'
+        MasterUserPassword: !Sub '{{resolve:secretsmanager:${BotServiceDBSecret}::password}}'
+        BackupRetentionPeriod: 0
+        VPCSecurityGroups:
+          - !GetAtt
+            - VPC
+            - DefaultSecurityGroup
+    BotServiceDBSubnetGroup:
+      Type: 'AWS::RDS::DBSubnetGroup'
+      Properties:
+        DBSubnetGroupDescription: !Sub Group for ${BotServiceName} DB
+        SubnetIds:
+          - !Ref Subnet01
+          - !Ref Subnet02
+          - !Ref Subnet03
+    BotServiceDBSecretInstanceAttachment:
+      Type: 'AWS::SecretsManager::SecretTargetAttachment'
+      Properties:
+        SecretId: !Ref BotServiceDBSecret
+        TargetId: !Ref BotServiceDBInstance
+        TargetType: 'AWS::RDS::DBInstance'
 
   BotServiceDefinition:
     Type: AWS::ECS::TaskDefinition

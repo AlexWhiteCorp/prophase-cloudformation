@@ -38,15 +38,6 @@ Resources:
         - !GetAZs
           Ref: 'AWS::Region'
       VpcId: !Ref VPC
-  Subnet03:
-    Type: 'AWS::EC2::Subnet'
-    Properties:
-      CidrBlock: 10.0.128.0/19
-      AvailabilityZone: !Select
-        - '2'
-        - !GetAZs
-          Ref: 'AWS::Region'
-      VpcId: !Ref VPC
 
 
 #####################################
@@ -125,7 +116,6 @@ Resources:
       Subnets:
         - !Ref Subnet01
         - !Ref Subnet02
-        - !Ref Subnet03
       SecurityGroups:
         - !GetAtt FargateALBSG.GroupId
       Type: application
@@ -229,7 +219,6 @@ Resources:
       SubnetIds:
         - !Ref Subnet01
         - !Ref Subnet02
-        - !Ref Subnet03
   BotServiceDBSecretInstanceAttachment:
     Type: 'AWS::SecretsManager::SecretTargetAttachment'
     Properties:

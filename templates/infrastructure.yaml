@@ -194,6 +194,6 @@ Resources:
         Subnet02: !Ref Subnet02
       Tags:
         - Key: Name
-          Value: !Sub ${Env}-${ServiceName}-stack
+          Value: !Sub ${Env}-prophase-bot-service-stack
 
 Outputs: {}

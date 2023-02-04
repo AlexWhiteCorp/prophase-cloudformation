@@ -9,9 +9,9 @@ Parameters:
   ServiceName:
     Description: Name of bot impl service
     Type: String
-  VPC:
-    Description: VPC
-    Type: 'AWS::EC2::VPC'
+  DefaultSecurityGroup:
+    Description: DefaultSecurityGroup
+    Type: String
   Subnet01:
     Description: VPC Subnet01
     Type: 'AWS::EC2::Subnet'
@@ -58,9 +58,7 @@ Resources:
       MasterUserPassword: !Sub '{{resolve:secretsmanager:${ServiceDBSecret}::password}}'
       BackupRetentionPeriod: 0
       VPCSecurityGroups:
-        - !GetAtt
-          - VPC
-          - DefaultSecurityGroup
+        - !Ref DefaultSecurityGroup
       Tags:
         - Key: Name
           Value: !Sub ${Env}-${ServiceName}-db

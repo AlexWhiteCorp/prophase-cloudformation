@@ -130,7 +130,7 @@ Resources:
         - !Ref Subnet01
         - !Ref Subnet02
       SecurityGroups:
-        - !GetAtt FargateALBSG.GroupId
+        - !GetAtt ClusterALBSG.GroupId
       Type: application
 
   ClusterTargetGroup:
@@ -180,7 +180,7 @@ Resources:
       VpcId: !Ref VPC
       SecurityGroupIngress:
         - IpProtocol: -1
-          SourceSecurityGroupId: !GetAtt FargateALBSG.GroupId
+          SourceSecurityGroupId: !GetAtt ClusterALBSG.GroupId
           Description: 'Inbound rule for all traffic'
 
 Outputs: {}

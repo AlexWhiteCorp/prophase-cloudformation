@@ -146,13 +146,15 @@ Resources:
   ClusterListener:
     Type: 'AWS::ElasticLoadBalancingV2::Listener'
     Properties:
-      Name: !Sub ${Env}-cluster-listener
       DefaultActions:
         - TargetGroupArn: !Ref ClusterTargetGroup
           Type: forward
       LoadBalancerArn: !Ref AppLoadBalancer
       Port: 80
       Protocol: HTTP
+      Tags:
+        - Key: Name
+          Value: !Sub ${Env}-cluster-listener
 
   ClusterALBSG:
     Type: 'AWS::EC2::SecurityGroup'

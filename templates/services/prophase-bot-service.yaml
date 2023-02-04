@@ -44,7 +44,7 @@ Resources:
         SecretStringTemplate: '{"username": "postgres", "port": "5432"}'
         GenerateStringKey: password
         PasswordLength: 16
-        ExcludeCharacters: '"@/\#$^*()-+='
+        ExcludeCharacters: '"@/\#$%^*()-+=,.<>'
   ServiceDBInstance:
     Type: 'AWS::RDS::DBInstance'
     Properties:

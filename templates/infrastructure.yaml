@@ -185,7 +185,7 @@ Resources:
   BotServiceStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub s3://149284612295/dev/cf-templates/services/prophase-bot-service.yaml
+      TemplateURL: !Sub https://149284612295.s3.eu-west-1.amazonaws.com/${Env}/cf-templates/services/prophase-bot-service.yaml
       Parameters:
         Env: !Sub ${Env}
         ServiceName: prophase-bot-service

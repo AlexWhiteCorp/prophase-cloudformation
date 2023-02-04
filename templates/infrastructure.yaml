@@ -1,0 +1,199 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: Prophase infrastructure stack
+
+Parameters:
+  Env:
+    Description: Environment prefix
+    Type: String
+
+Resources:
+  VPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${Env}-vpc
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub ${Env} VPC Internet Gateway
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+  Subnet01:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      CidrBlock: 10.0.96.0/19
+      AvailabilityZone: !Select
+        - '0'
+        - !GetAZs
+          Ref: 'AWS::Region'
+      VpcId: !Ref VPC
+  Subnet02:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      CidrBlock: 10.0.128.0/19
+      AvailabilityZone: !Select
+        - '1'
+        - !GetAZs
+          Ref: 'AWS::Region'
+      VpcId: !Ref VPC
+
+
+#####################################
+#               API                 #
+#####################################
+  RestApi:
+    Type: 'AWS::ApiGateway::RestApi'
+    Properties:
+      EndpointConfiguration:
+        Types:
+          - EDGE
+      Name: !Sub ${Env}-api
+
+#  RestApiDeployment:
+#    Type: AWS::ApiGateway::Deployment
+#    DependsOn:
+#      - PostBotMethod
+#    Properties:
+#      RestApiId: !Ref RestApi
+
+#  RestApiStage:
+#    Type: AWS::ApiGateway::Stage
+#    Properties:
+#      StageName: !Sub ${Env}
+#      Description: !Sub ${Env} Stage
+#      RestApiId: !Ref RestApi
+#      DeploymentId: !Ref RestApiDeployment
+
+  RestApiRootResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt RestApi.RootResourceId
+      PathPart: api
+      RestApiId: !Ref RestApi
+
+# Api Methods Level 1
+  PostBotMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+#      Integration:
+#        ConnectionType: INTERNET
+#        IntegrationHttpMethod: POST
+#        Type: AWS_PROXY
+      ResourceId: !Ref RestApiRootResource
+      RestApiId: !Ref RestApi
+
+
+#####################################
+#             CLUSTER               #
+#####################################
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ecs-tasks.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Description: Role to execute ACS Task
+
+  ECSCluster:
+    Type: 'AWS::ECS::Cluster'
+    Properties:
+      ClusterName: !Sub ${Env}
+
+  AppLoadBalancer:
+    Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
+    DependsOn:
+      - VPC
+    Properties:
+      Name: !Sub ${Env}-cluster-ALB
+      Subnets:
+        - !Ref Subnet01
+        - !Ref Subnet02
+      SecurityGroups:
+        - !GetAtt ClusterALBSG.GroupId
+      Type: application
+
+  ClusterTargetGroup:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    Properties:
+      Name: !Sub ${Env}-cluster-target-group
+      VpcId: !Ref VPC
+      Protocol: HTTP
+      Port: 8080
+      HealthCheckPath: /actuator/
+      TargetType: ip
+
+  ClusterListener:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    Properties:
+      DefaultActions:
+        - TargetGroupArn: !Ref ClusterTargetGroup
+          Type: forward
+      LoadBalancerArn: !Ref AppLoadBalancer
+      Port: 80
+      Protocol: HTTP
+
+  ClusterALBSG:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: SG for the Fargate ALB
+      GroupName: !Sub ${Env}-FargateALB_SG
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - CidrIpv6: ::/0
+          FromPort: 80
+          ToPort: 80
+          IpProtocol: TCP
+          Description: 'Inbound rule for IPv6 traffic'
+        - CidrIp: 0.0.0.0/0
+          FromPort: 80
+          ToPort: 80
+          IpProtocol: TCP
+          Description: 'Inbound rule for IPv4 traffic'
+
+  ALB2CLusterContainersSG:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: SG for traffic between ALB and containers
+      GroupName: !Sub ${Env}-ALB2FargateContainers_SG
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          SourceSecurityGroupId: !GetAtt ClusterALBSG.GroupId
+          Description: 'Inbound rule for all traffic'
+
+#####################################
+#            SERVICES               #
+#####################################
+  BotServiceStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://149284612295.s3.eu-west-1.amazonaws.com/${Env}/cf-templates/services/prophase-bot-service.yaml
+      Parameters:
+        ServiceName: prophase-bot-service
+        Env: !Sub ${Env}
+        DefaultSecurityGroup: !GetAtt VPC.DefaultSecurityGroup
+        Subnet01Id: !Ref Subnet01
+        Subnet02Id: !Ref Subnet02
+        ECSTaskExecutionRoleArn: !GetAtt ECSTaskExecutionRole.Arn
+        TargetGroupId: !Ref ClusterTargetGroup
+        ContainersSGId: !GetAtt ALB2CLusterContainersSG.GroupId
+
+Outputs: {}

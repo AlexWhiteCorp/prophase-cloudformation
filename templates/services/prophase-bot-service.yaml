@@ -1,0 +1,136 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: prophase-bot-service stack
+
+Parameters:
+  Env:
+    Description: Environment prefix
+    Type: String
+  ServiceName:
+    Description: Name of bot impl service
+    Type: String
+  DefaultSecurityGroup:
+    Description: DefaultSecurityGroup
+    Type: String
+  Subnet01Id:
+    Description: VPC Subnet01
+    Type: String
+  Subnet02Id:
+    Description: VPC Subnet01
+    Type: String
+  ECSTaskExecutionRoleArn:
+    Description: Execution Role Arn
+    Type: String
+  TargetGroupId:
+    Description: TargetGroup Id
+    Type: String
+  ContainersSGId:
+    Description: ContainersSG Id
+    Type: String
+
+Resources:
+  ServiceRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Sub ${ServiceName}
+      RepositoryPolicyText:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowPushPull
+            Effect: Allow
+            Principal:
+              AWS:
+                - "arn:aws:iam::149284612295:user/GitHub_Actions"
+            Action:
+              - "ecr:*"
+
+  ServiceDBSecret:
+    Type: 'AWS::SecretsManager::Secret'
+    Properties:
+      Name: !Sub ${Env}-${ServiceName}-db
+      Description: !Sub AWS RDS admin credentials for ${ServiceName} DB
+      GenerateSecretString:
+        SecretStringTemplate: '{"username": "postgres", "port": "5432"}'
+        GenerateStringKey: password
+        PasswordLength: 16
+        ExcludeCharacters: '"@/\#$%^*()-+=,.<>'
+  ServiceDBInstance:
+    Type: 'AWS::RDS::DBInstance'
+    Properties:
+      AllocatedStorage: 20
+      DBInstanceClass: db.t3.micro
+      DBInstanceIdentifier: !Sub ${Env}-${ServiceName}
+      Engine: postgres
+      EngineVersion: 12.11
+      DBSubnetGroupName: !Ref ServiceDBSubnetGroup
+      MasterUsername: !Sub '{{resolve:secretsmanager:${ServiceDBSecret}::username}}'
+      MasterUserPassword: !Sub '{{resolve:secretsmanager:${ServiceDBSecret}::password}}'
+      BackupRetentionPeriod: 0
+      VPCSecurityGroups:
+        - !Ref DefaultSecurityGroup
+      Tags:
+        - Key: Name
+          Value: !Sub ${Env}-${ServiceName}-db
+  ServiceDBSubnetGroup:
+    Type: 'AWS::RDS::DBSubnetGroup'
+    Properties:
+      DBSubnetGroupDescription: !Sub Group for ${ServiceName} DB
+      SubnetIds:
+        - !Ref Subnet01Id
+        - !Ref Subnet02Id
+      Tags:
+        - Key: Name
+          Value: !Sub ${Env}-${ServiceName}-db-subnet-group
+  ServiceDBSecretInstanceAttachment:
+    Type: 'AWS::SecretsManager::SecretTargetAttachment'
+    Properties:
+      SecretId: !Ref ServiceDBSecret
+      TargetId: !Ref ServiceDBInstance
+      TargetType: 'AWS::RDS::DBInstance'
+
+  ServiceDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      RequiresCompatibilities:
+        - "FARGATE"
+      ExecutionRoleArn: !Ref ECSTaskExecutionRoleArn
+      Cpu: 256
+      Memory: 512
+      NetworkMode: "awsvpc"
+      ContainerDefinitions:
+        - Name: !Sub ${Env}-${ServiceName}-task
+          Image: !Sub ${ServiceRepository.RepositoryUri}:latest
+          MemoryReservation: 256
+          Memory: 512
+          PortMappings:
+            - ContainerPort: 8081
+              Protocol: tcp
+      Family: !Sub ${Env}-${ServiceName}-task
+
+  Service:
+    Type: AWS::ECS::Service
+    DependsOn:
+      - ClusterListener
+    Properties:
+      LaunchType: FARGATE
+      Cluster:
+        Ref: "ECSCluster"
+      DesiredCount: 1
+      TaskDefinition:
+        Ref: ServiceDefinition
+      DeploymentConfiguration:
+        MaximumPercent: 100
+        MinimumHealthyPercent: 0
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups:
+            - ContainersSGId
+          Subnets:
+            - !Ref Subnet01Id
+            - !Ref Subnet02Id
+      LoadBalancers:
+        - TargetGroupArn:
+            Ref: !Ref TargetGroupId
+          ContainerPort: 8081
+          ContainerName: !Sub ${Env}-${ServiceName}-task

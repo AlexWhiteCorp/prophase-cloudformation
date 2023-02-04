@@ -12,12 +12,12 @@ Parameters:
   DefaultSecurityGroup:
     Description: DefaultSecurityGroup
     Type: String
-  Subnet01:
+  Subnet01Id:
     Description: VPC Subnet01
-    Type: 'AWS::EC2::Subnet'
-  Subnet02:
+    Type: String
+  Subnet02Id:
     Description: VPC Subnet01
-    Type: 'AWS::EC2::Subnet'
+    Type: String
 
 Resources:
   ServiceRepository:
@@ -67,8 +67,8 @@ Resources:
     Properties:
       DBSubnetGroupDescription: !Sub Group for ${ServiceName} DB
       SubnetIds:
-        - !Ref Subnet01
-        - !Ref Subnet02
+        - !Ref Subnet01Id
+        - !Ref Subnet02Id
       Tags:
         - Key: Name
           Value: !Sub ${Env}-${ServiceName}-db-subnet-group

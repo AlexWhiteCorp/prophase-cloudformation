@@ -120,4 +120,67 @@ Resources:
     Properties:
       ClusterName: !Sub ${Env}
 
+  AppLoadBalancer:
+    Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
+    DependsOn:
+      - VPC
+    Properties:
+      Name: !Sub ${Env}-cluster-ALB
+      Subnets:
+        - !Ref Subnet01
+        - !Ref Subnet02
+      SecurityGroups:
+        - !GetAtt FargateALBSG.GroupId
+      Type: application
+
+  ClusterTargetGroup:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    Properties:
+      Name: !Sub ${Env}-cluster-target-group
+      VpcId: !Ref VPC
+      Protocol: HTTP
+      Port: 8080
+      HealthCheckPath: /actuator/
+      TargetType: ip
+
+  ClusterListener:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    Properties:
+      Name: !Sub ${Env}-cluster-listener
+      DefaultActions:
+        - TargetGroupArn: !Ref ClusterTargetGroup
+          Type: forward
+      LoadBalancerArn: !Ref AppLoadBalancer
+      Port: 80
+      Protocol: HTTP
+
+  ClusterALBSG:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: SG for the Fargate ALB
+      GroupName: !Sub ${Env}-FargateALB_SG
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - CidrIpv6: ::/0
+          FromPort: 80
+          ToPort: 80
+          IpProtocol: TCP
+          Description: 'Inbound rule for IPv6 traffic'
+        - CidrIp: 0.0.0.0/0
+          FromPort: 80
+          ToPort: 80
+          IpProtocol: TCP
+          Description: 'Inbound rule for IPv4 traffic'
+
+  ALB2CLusterContainersSG:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: SG for traffic between ALB and containers
+      GroupName: !Sub ${Env}-ALB2FargateContainers_SG
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          SourceSecurityGroupId: !GetAtt FargateALBSG.GroupId
+          Description: 'Inbound rule for all traffic'
+
 Outputs: {}

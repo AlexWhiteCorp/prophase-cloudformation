@@ -50,7 +50,6 @@ Resources:
     Properties:
       AllocatedStorage: 20
       DBInstanceClass: db.t2.micro
-      DBName: !Sub ${Env}-${ServiceName}
       DBInstanceIdentifier: !Sub ${Env}-${ServiceName}
       Engine: postgres
       DBSubnetGroupName: !Ref ServiceDBSubnetGroup

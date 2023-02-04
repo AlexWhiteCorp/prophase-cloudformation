@@ -190,8 +190,8 @@ Resources:
         ServiceName: prophase-bot-service
         Env: !Ref Env
         DefaultSecurityGroup: !GetAtt VPC.DefaultSecurityGroup
-        Subnet01: !Ref Subnet01
-        Subnet02: !Ref Subnet02
+        Subnet01Id: !Ref Subnet01
+        Subnet02Id: !Ref Subnet02
       Tags:
         - Key: Name
           Value: !Sub ${Env}-prophase-bot-service-stack

@@ -6,9 +6,6 @@ Parameters:
   Env:
     Description: Environment prefix
     Type: String
-  BotServiceName:
-    Description: Name of bot impl service
-    Type: String
 
 Resources:
   VPC:

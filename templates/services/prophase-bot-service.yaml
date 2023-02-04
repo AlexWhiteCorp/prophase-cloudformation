@@ -125,7 +125,7 @@ Resources:
         AwsvpcConfiguration:
           AssignPublicIp: ENABLED
           SecurityGroups:
-            - !Ref ContainersSGId
+            - ContainersSGId
           Subnets:
             - !Ref Subnet01Id
             - !Ref Subnet02Id

@@ -9,6 +9,15 @@ Parameters:
   ServiceName:
     Description: Name of bot impl service
     Type: String
+  VPC:
+    Description: VPC
+    Type: 'AWS::EC2::VPC'
+  Subnet01:
+    Description: VPC Subnet01
+    Type: 'AWS::EC2::Subnet'
+  Subnet02:
+    Description: VPC Subnet01
+    Type: 'AWS::EC2::Subnet'
 
 Resources:
   ServiceRepository:
@@ -51,7 +60,6 @@ Resources:
       VPCSecurityGroups:
         - !GetAtt
           - VPC
-          - DefaultSecurityGroup
       Tags:
         - Key: Name
           Value: !Sub ${Env}-${ServiceName}-db

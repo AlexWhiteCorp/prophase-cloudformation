@@ -187,7 +187,10 @@ Resources:
     Properties:
       TemplateURL: !Sub https://149284612295.s3.eu-west-1.amazonaws.com/${Env}/cf-templates/services/prophase-bot-service.yaml
       Parameters:
-        Env: !Sub ${Env}
         ServiceName: prophase-bot-service
+        Env: !Sub ${Env}
+        VPC: !Ref VPC
+        Subnet01: !Ref Subnet01
+        Subnet02: !Ref Subnet02
 
 Outputs: {}

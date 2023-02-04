@@ -32,4 +32,4 @@ jobs:
 
       - name: Upload templates to S3
         run: |
-          aws s3 mv ./templates s3://149284612295/dev/cf-templates
+          aws s3 cp ./templates s3://149284612295/dev/cf-templates/ --recursive

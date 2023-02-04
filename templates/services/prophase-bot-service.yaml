@@ -92,11 +92,11 @@ Resources:
       Memory: 512
       NetworkMode: "awsvpc"
       ContainerDefinitions:
-        - Name: !Sub ${ServiceName}-task
+        - Name: !Sub ${Env}-${ServiceName}-task
           Image: !Sub ${ServiceRepository.RepositoryUri}:latest
           MemoryReservation: 256
           Memory: 512
           PortMappings:
             - ContainerPort: 8081
               Protocol: tcp
-      Family: !Sub ${ServiceName}-task
+      Family: !Sub ${Env}-${ServiceName}-task

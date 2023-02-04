@@ -9,21 +9,12 @@ Parameters:
   ServiceName:
     Description: Name of bot impl service
     Type: String
-  DefaultSecurityGroup:
-    Description: DefaultSecurityGroup
-    Type: String
-  Subnet01Id:
-    Description: VPC Subnet01
-    Type: String
-  Subnet02Id:
-    Description: VPC Subnet01
-    Type: String
 
 Resources:
   ServiceRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: prophase-bot-service
+      RepositoryName: !Sub ${ServiceName}
       RepositoryPolicyText:
         Version: "2012-10-17"
         Statement:

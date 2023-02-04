@@ -179,4 +179,15 @@ Resources:
           SourceSecurityGroupId: !GetAtt ClusterALBSG.GroupId
           Description: 'Inbound rule for all traffic'
 
+#####################################
+#            SERVICES               #
+#####################################
+  BotServiceStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub s3://149284612295/dev/cf-templates/services/prophase-bot-service.yaml
+      Parameters:
+        Env: !Sub ${Env}
+        ServiceName: prophase-bot-service
+
 Outputs: {}

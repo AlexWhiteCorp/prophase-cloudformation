@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: prophase-bot-service stack
+
+Parameters:
+  Env:
+    Description: Environment prefix
+    Type: String
+  ServiceName:
+    Description: Name of bot impl service
+    Type: String
+
+Resources:
+  ServiceRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Sub ${ServiceName}
+      RepositoryPolicyText:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowPushPull
+            Effect: Allow
+            Principal:
+              AWS:
+                - "arn:aws:iam::149284612295:user/GitHub_Actions"
+            Action:
+              - "ecr:*"
+
+  ServiceDBSecret:
+    Type: 'AWS::SecretsManager::Secret'
+    Properties:
+      Name: !Sub ${Env}-${ServiceName}-db
+      Description: !Sub AWS RDS admin credentials for ${ServiceName} DB
+      GenerateSecretString:
+        SecretStringTemplate: '{"username": "postgres", "port": "5432"}'
+        GenerateStringKey: password
+        PasswordLength: 16
+        ExcludeCharacters: '"@/\#$^*()-+='
+  ServiceDBInstance:
+    Type: 'AWS::RDS::DBInstance'
+    Properties:
+      AllocatedStorage: 20
+      DBInstanceClass: db.t2.micro
+      DBName: !Sub ${Env}-${ServiceName}
+      DBInstanceIdentifier: !Sub ${Env}-${ServiceName}
+      Engine: postgres
+      DBSubnetGroupName: !Ref ServiceDBSubnetGroup
+      MasterUsername: !Sub '{{resolve:secretsmanager:${ServiceDBSecret}::username}}'
+      MasterUserPassword: !Sub '{{resolve:secretsmanager:${ServiceDBSecret}::password}}'
+      BackupRetentionPeriod: 0
+      VPCSecurityGroups:
+        - !GetAtt
+          - VPC
+          - DefaultSecurityGroup
+      Tags:
+        - Key: Name
+          Value: !Sub ${Env}-${ServiceName}-db
+  ServiceDBSubnetGroup:
+    Type: 'AWS::RDS::DBSubnetGroup'
+    Properties:
+      DBSubnetGroupDescription: !Sub Group for ${ServiceName} DB
+      SubnetIds:
+        - !Ref Subnet01
+        - !Ref Subnet02
+      Tags:
+        - Key: Name
+          Value: !Sub ${Env}-${ServiceName}-db-subnet-group
+  ServiceDBSecretInstanceAttachment:
+    Type: 'AWS::SecretsManager::SecretTargetAttachment'
+    Properties:
+      SecretId: !Ref ServiceDBSecret
+      TargetId: !Ref ServiceDBInstance
+      TargetType: 'AWS::RDS::DBInstance'

@@ -192,10 +192,5 @@ Resources:
         DefaultSecurityGroup: !GetAtt VPC.DefaultSecurityGroup
         Subnet01Id: !Ref Subnet01
         Subnet02Id: !Ref Subnet02
-      Tags:
-        - Key: logical-id
-          Value: !Sub ${Env}-prophase-bot-service-stack
-        - Key: stack-name
-          Value: !Sub ${Env}-prophase-bot-service-stack
 
 Outputs: {}

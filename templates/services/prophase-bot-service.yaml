@@ -21,6 +21,12 @@ Parameters:
   ECSTaskExecutionRoleArn:
     Description: Execution Role Arn
     Type: String
+  TargetGroupId:
+    Description: TargetGroup Id
+    Type: String
+  ContainersSGId:
+    Description: ContainersSG Id
+    Type: String
 
 Resources:
   ServiceRepository:
@@ -100,3 +106,31 @@ Resources:
             - ContainerPort: 8081
               Protocol: tcp
       Family: !Sub ${Env}-${ServiceName}-task
+
+  Service:
+    Type: AWS::ECS::Service
+    DependsOn:
+      - ClusterListener
+    Properties:
+      LaunchType: FARGATE
+      Cluster:
+        Ref: "ECSCluster"
+      DesiredCount: 1
+      TaskDefinition:
+        Ref: ServiceDefinition
+      DeploymentConfiguration:
+        MaximumPercent: 100
+        MinimumHealthyPercent: 0
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups:
+            - !Ref ContainersSGId
+          Subnets:
+            - !Ref Subnet01Id
+            - !Ref Subnet02Id
+      LoadBalancers:
+        - TargetGroupArn:
+            Ref: !Ref TargetGroupId
+          ContainerPort: 8081
+          ContainerName: !Sub ${Env}-${ServiceName}-task

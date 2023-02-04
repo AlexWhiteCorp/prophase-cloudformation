@@ -193,9 +193,9 @@ Resources:
         Subnet01Id: !Ref Subnet01
         Subnet02Id: !Ref Subnet02
       Tags:
-        - Key: aws:cloudformation:logical-id
+        - Key: logical-id
           Value: !Sub ${Env}-prophase-bot-service-stack
-        - Key: aws:cloudformation:stack-name
+        - Key: stack-name
           Value: !Sub ${Env}-prophase-bot-service-stack
 
 Outputs: {}

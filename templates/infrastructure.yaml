@@ -194,6 +194,6 @@ Resources:
         Subnet02Id: !Ref Subnet02
         ECSTaskExecutionRoleArn: !GetAtt ECSTaskExecutionRole.Arn
         TargetGroupId: !Ref ClusterTargetGroup
-        ContainersSGId: !GetAtt ALB2FargateContainersSG.GroupId
+        ContainersSGId: !GetAtt ALB2CLusterContainersSG.GroupId
 
 Outputs: {}

@@ -192,5 +192,6 @@ Resources:
         DefaultSecurityGroup: !GetAtt VPC.DefaultSecurityGroup
         Subnet01Id: !Ref Subnet01
         Subnet02Id: !Ref Subnet02
+        ECSTaskExecutionRoleArn: !GetAtt ECSTaskExecutionRole.Arn
 
 Outputs: {}

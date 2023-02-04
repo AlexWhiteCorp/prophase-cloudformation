@@ -18,6 +18,9 @@ Parameters:
   Subnet02Id:
     Description: VPC Subnet01
     Type: String
+  ECSTaskExecutionRoleArn:
+    Description: Execution Role Arn
+    Type: String
 
 Resources:
   ServiceRepository:
@@ -78,3 +81,22 @@ Resources:
       SecretId: !Ref ServiceDBSecret
       TargetId: !Ref ServiceDBInstance
       TargetType: 'AWS::RDS::DBInstance'
+
+  ServiceDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      RequiresCompatibilities:
+        - "FARGATE"
+      ExecutionRoleArn: !Ref ECSTaskExecutionRoleArn
+      Cpu: 256
+      Memory: 512
+      NetworkMode: "awsvpc"
+      ContainerDefinitions:
+        - Name: !Sub ${ServiceName}-task
+          Image: !Sub ${ServiceRepository.RepositoryUri}:latest
+          MemoryReservation: 256
+          Memory: 512
+          PortMappings:
+            - ContainerPort: 8081
+              Protocol: tcp
+      Family: !Sub ${ServiceName}-task
